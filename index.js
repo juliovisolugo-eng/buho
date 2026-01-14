@@ -20,5 +20,5 @@ app.post('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(Búho escuchando en puerto ${PORT});
+  console.log('Búho escuchando en puerto ${PORT}');
 });
