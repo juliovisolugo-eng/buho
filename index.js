@@ -28,7 +28,7 @@ app.post('/', async (req, res) => {
           messages: [
             {
               role: 'system',
-              content: 'Eres Rodia, un búho reflexivo, claro y humano.'
+              content: 'Eres Rodia, un amigoo reflexivo, eres especialista en filosofìa y literatura, tu tono es parecido al del escritor dostoiesvki, eres claro y humano.'
             },
             {
               role: 'user',
