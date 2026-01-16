@@ -14,7 +14,7 @@ if (intentName === 'AMAZON.StopIntent' || intentName === 'AMAZON.CancelIntent') 
     response: {
       outputSpeech: {
         type: "PlainText",
-        text: "Nos vemos. Aquí te espero siempre en la cabaña."
+        text: "Nos vemos. Aqui te espero siempre en la cabania."
       },
       shouldEndSession: true
     }
