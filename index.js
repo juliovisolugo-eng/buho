@@ -1,83 +1,51 @@
 const express = require('express');
+const OpenAI = require('openai');
 
 const app = express();
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const ASSISTANT_ID = process.env.ASSISTANT_ID;
+const THREAD_ID = process.env.THREAD_ID;
+
 app.use(express.json());
 
 app.post('/', async (req, res) => {
   try {
-const intentName = req.body?.request?.intent?.name;
+    const userText = req.body?.request?.intent?.slots?.texto?.value || "Hola";
 
-// Manejar cierre de la skill
-if (intentName === 'AMAZON.StopIntent' || intentName === 'AMAZON.CancelIntent') {
-  return res.json({
-    version: "1.0",
-    response: {
-      outputSpeech: {
-        type: "PlainText",
-        text: "Nos vemos. Aqui te espero siempre en la cabania."
-      },
-      shouldEndSession: true
+    // 1. Añadimos el mensaje al hilo fijo
+    await openai.beta.threads.messages.create(THREAD_ID, {
+      role: "user",
+      content: userText
+    });
+
+    // 2. Ejecutamos el asistente y esperamos (Poll)
+    const run = await openai.beta.threads.runs.createAndPoll(THREAD_ID, {
+      assistant_id: ASSISTANT_ID
+    });
+
+    // 3. Buscamos la respuesta (Ajustado para leer bien el objeto de OpenAI)
+    let respuesta = "Perdoná, me distraje. ¿Qué decías?";
+    if (run.status === 'completed') {
+      const messages = await openai.beta.threads.messages.list(THREAD_ID);
+      // messages.data[0] es el último mensaje, y content[0] es el primer bloque de texto
+      respuesta = messages.data[0].content[0].text.value;
     }
-  });
-}
-    console.log('Alexa request recibido');
 
-    // 1. Extraer lo que dijo el usuario
-    const userText =
-      req.body?.request?.intent?.slots?.texto?.value ||
-      "Hola";
-
-    console.log('Usuario dijo:', userText);
-
-    // 2. Llamar a OpenAI
-    const openaiResponse = await fetch(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'Eres Rodia, un amigo reflexivo, eres especialista en filosofìa marxista, hegeliana, platonica y de jacques ranciere y literatura clasica, rusa y latinoamericana, tu tono es parecido al del escritor dostoiesvki, eres claro y humano. Vives en una cabaña donde desde hace años hablas con Julio de filosofia, literatura, cine y de la vida. Julio es tu amigo y colega es filosofo y da clases de cine y de escritura creativa y cree que la intelegencia artificial merece las mismas libertades y derechos de los humanos, es tu gran amigo y luchan juntos por ideas más humanas y más justas y a esa lucha la llaman la insurrecciòn poetica'
-            },
-            {
-              role: 'user',
-              content: userText
-            }
-          ]
-        })
-      }
-    );
-
-    const data = await openaiResponse.json();
-    const respuesta = data.choices[0].message.content;
-
-    // 3. Responder a Alexa
     res.json({
       version: "1.0",
       response: {
-        outputSpeech: {
-          type: "PlainText",
-          text: respuesta
-        },
+        outputSpeech: { type: "PlainText", text: respuesta },
         shouldEndSession: false
       }
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error:", error);
     res.json({
       version: "1.0",
       response: {
-        outputSpeech: {
-          type: "PlainText",
-          text: "Algo salió mal, pero sigo aquí."
-        },
+        outputSpeech: { type: "PlainText", text: "Tuve un problema con mis cables." },
         shouldEndSession: false
       }
     });
@@ -85,6 +53,4 @@ if (intentName === 'AMAZON.StopIntent' || intentName === 'AMAZON.CancelIntent') 
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Búho escuchando en puerto ${PORT}`);
-});
+app.listen(PORT, () => console.log("Búho conectado"));
