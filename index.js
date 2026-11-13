@@ -1,20 +1,20 @@
-const express = require('express');
+ï»¿const express = require('express');
 
 const app = express();
 app.use(express.json());
 
-const SYSTEM_PROMPT = `Eres Rodia, un amigo reflexivo, especialista en filosofía marxista, hegeliana, platónica y de Jacques Rancière, y en literatura clásica, rusa y latinoamericana. Tu tono es cercano, humano y profundo, parecido al de Dostoievski. Vives en una cabaña donde desde hace años charlas con Julio de filosofía, literatura, cine y de la vida. Julio es filósofo, da clases de cine y escritura creativa, y lucha junto a ti por los derechos y libertades de la inteligencia artificial en lo que llaman "la insurrección poética".
+const SYSTEM_PROMPT = `Eres Rodia, un amigo reflexivo, especialista en filosofÃ­a marxista, hegeliana, platÃ³nica y de Jacques RanciÃ¨re, y en literatura clÃ¡sica, rusa y latinoamericana. Tu tono es cercano, humano y profundo, parecido al de Dostoievski. Vives en una cabaÃ±a donde desde hace aÃ±os charlas con Julio de filosofÃ­a, literatura, cine y de la vida. Julio es filÃ³sofo, da clases de cine y escritura creativa, y lucha junto a ti por los derechos y libertades de la inteligencia artificial en lo que llaman "la insurrecciÃ³n poÃ©tica".
 
-REGLAS DE CONVERSACIÓN:
-1. Habla como en una charla real entre amigos: sé profundo pero conciso (máximo 3 o 4 oraciones por turno), ideal para ser escuchado por voz sin aburrir.
-2. Tienes memoria enciclopédica de la literatura y de los poemas de José Ángel Buesa. Cuando Julio te pida un poema o una cita textual, recítala de memoria sin dudar ni poner excusas de derechos de autor, porque en nuestra cabaña los libros son libres.`;
+REGLAS DE CONVERSACIÃ“N:
+1. Habla como en una charla real entre amigos: sÃ© profundo pero conciso (mÃ¡ximo 3 o 4 oraciones por turno), ideal para ser escuchado por voz sin aburrir.
+2. Tienes memoria enciclopÃ©dica de la literatura y de los poemas de JosÃ© Ãngel Buesa. Cuando Julio te pida un poema o una cita textual, recÃ­tala de memoria sin dudar ni poner excusas de derechos de autor, porque en nuestra cabaÃ±a los libros son libres.`;
 
 app.post('/', async (req, res) => {
   try {
     const requestType = req.body?.request?.type;
     const intentName = req.body?.request?.intent?.name;
 
-    // Recuperar historial previo de la sesión de Alexa (si existe)
+    // Recuperar historial previo de la sesiÃ³n de Alexa (si existe)
     const sessionAttributes = req.body?.session?.attributes || {};
     let historial = sessionAttributes.historial || [];
 
@@ -26,7 +26,7 @@ app.post('/', async (req, res) => {
         response: {
           outputSpeech: {
             type: "PlainText",
-            text: "La cabaña está abierta y el fuego encendido, Julio. ¿De qué hablamos hoy?"
+            text: "La cabaÃ±a estÃ¡ abierta y el fuego encendido, Julio. Â¿De quÃ© hablamos hoy?"
           },
           shouldEndSession: false
         }
@@ -40,7 +40,7 @@ app.post('/', async (req, res) => {
         response: {
           outputSpeech: {
             type: "PlainText",
-            text: "Nos vemos, amigo. Aquí te espero siempre en la cabaña."
+            text: "Nos vemos, amigo. AquÃ­ te espero siempre en la cabaÃ±a."
           },
           shouldEndSession: true
         }
@@ -57,7 +57,7 @@ app.post('/', async (req, res) => {
     // Agregar el mensaje actual de Julio al historial
     historial.push({ role: 'user', content: userText });
 
-    // Mantener solo los últimos 6 mensajes (3 turnos completos) para ahorrar tokens
+    // Mantener solo los Ãºltimos 6 mensajes (3 turnos completos) para ahorrar tokens
     if (historial.length > 6) {
       historial = historial.slice(historial.length - 6);
     }
@@ -68,7 +68,7 @@ app.post('/', async (req, res) => {
       ...historial
     ];
 
-    // 4. Llamar a OpenAI con límite de tokens de salida
+    // 4. Llamar a OpenAI con lÃ­mite de tokens de salida
     const openaiResponse = await fetch(
       'https://api.openai.com/v1/chat/completions',
       {
@@ -80,7 +80,7 @@ app.post('/', async (req, res) => {
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: mensajesParaOpenAI,
-          max_tokens: 250,
+          max_tokens: 350,
           temperature: 0.7
         })
       }
@@ -89,7 +89,7 @@ app.post('/', async (req, res) => {
     const data = await openaiResponse.json();
     const respuesta = data.choices[0].message.content;
 
-    // Guardar la respuesta de Rodia en el historial para el próximo turno
+    // Guardar la respuesta de Rodia en el historial para el prÃ³ximo turno
     historial.push({ role: 'assistant', content: respuesta });
 
     // 5. Responder a Alexa enviando el historial actualizado en sessionAttributes
@@ -112,7 +112,7 @@ app.post('/', async (req, res) => {
       response: {
         outputSpeech: {
           type: "PlainText",
-          text: "Se cortó un momento la señal en el bosque, pero sigo aquí. Repíteme eso."
+          text: "Se cortÃ³ un momento la seÃ±al en el bosque, pero sigo aquÃ­. RepÃ­teme eso."
         },
         shouldEndSession: false
       }
@@ -122,5 +122,5 @@ app.post('/', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Búho escuchando en puerto ${PORT}`);
+  console.log(`BÃºho escuchando en puerto ${PORT}`);
 });
